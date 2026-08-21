@@ -114,6 +114,7 @@
   .hero {
     background: linear-gradient(135deg, var(--teal-deep) 0%, var(--teal) 55%, #0d6b73 100%);
     padding: 48px 0 60px;
+    min-height: 540px;
     overflow: hidden;
     position: relative;
   }
@@ -137,8 +138,8 @@
     gap: 40px;
     align-items: center;
   }
-  @media (min-width: 720px) {
-    .hero-grid { grid-template-columns: 1.1fr 1fr; gap: 52px; }
+  @media (min-width: 640px) {
+    .hero-grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 52px; }
   }
   .hero-copy { color: #fff; position: relative; z-index: 1; }
   .hero h1 {
@@ -372,7 +373,7 @@
   .ins-note strong { color: var(--teal); }
 
   /* ── How It Works ────────────────────────────────────────────── */
-  .hiw-section { padding: 80px 0; background: var(--white); }
+  .hiw-section { padding: 80px 0; background: var(--white); border-top: 1px solid var(--line); }
   .steps {
     display: grid; grid-template-columns: 1fr;
     gap: 28px; margin-top: 44px;
@@ -399,7 +400,7 @@
   .steps-note strong { color: var(--teal); }
 
   /* ── Reviews ─────────────────────────────────────────────────── */
-  .reviews-section { padding: 80px 0; background: var(--paper); }
+  .reviews-section { padding: 80px 0; background: var(--teal); }
   .reviews-header { text-align: center; margin-bottom: 44px; }
   .stars { color: #F59E0B; font-size: 22px; letter-spacing: 2px; margin-bottom: 8px; }
   .reviews-grid {
@@ -607,6 +608,94 @@
   /* Bump global content font sizes */
   .why-card p, .review-text, .faq-a, .timeline-step p, .team-card p, .program-card p { font-size: 16px !important; line-height: 1.75 !important; }
   .why-card h3, .faq-q { font-size: 18px !important; }
+
+  /* ── Stats bar ────────────────────────────────────────────── */
+  .stats-bar { background: var(--teal-lt); padding: 40px 0; border-bottom: 1px solid rgba(11,79,85,.1); }
+  .stats-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px 56px; }
+  .stat-item { text-align: center; min-width: 140px; }
+  .stat-number { font-size: clamp(28px, 4vw, 44px); font-weight: 900; color: var(--teal); line-height: 1.1; }
+  .stat-label { font-size: 13px; font-weight: 700; color: var(--ink-2); margin-top: 6px; text-transform: uppercase; letter-spacing: .06em; }
+
+  /* ── Bigger section headings ────────────────────────────────── */
+  .section-head h2, .reviews-header h2, .split-content h2 {
+    font-size: clamp(30px, 4vw, 48px) !important;
+    letter-spacing: -.025em;
+  }
+
+  /* ── Body text minimum ──────────────────────────────────────── */
+  body { font-size: 16px; }
+  .step p, .review-text, .timeline-step p, .benefit-card p,
+  .program-card p, .split-content > p, .clinician-quote,
+  .ins-note, .hero-sub, .faq-a {
+    font-size: 16px !important;
+    line-height: 1.75 !important;
+  }
+
+  /* ── Reviews dark theme ─────────────────────────────────────── */
+  .reviews-section .reviews-header h2 { color: #fff !important; }
+  .reviews-section .reviews-header p,
+  .reviews-section .reviews-header > p { color: rgba(255,255,255,.7) !important; }
+  .reviews-section .review-card {
+    position: relative;
+    padding-top: 44px;
+    border: 1px solid rgba(255,255,255,.12);
+    box-shadow: 0 4px 20px rgba(0,0,0,.15);
+  }
+  .reviews-section .review-card::before {
+    content: '\201C';
+    position: absolute; top: 6px; left: 18px;
+    font-size: 80px; line-height: 1;
+    color: rgba(11,79,85,.1);
+    font-family: Georgia, 'Times New Roman', serif;
+    pointer-events: none;
+  }
+  .reviews-section .review-text { position: relative; z-index: 1; }
+
+  /* ── Why section feature list ────────────────────────────────── */
+  .why-features { margin-top: 0; }
+  .why-feature {
+    display: flex; gap: 24px; align-items: flex-start;
+    padding: 28px 0; border-bottom: 1px solid var(--line);
+  }
+  .why-feature:last-child { border-bottom: none; }
+  .why-feature-accent {
+    width: 4px; min-height: 56px; background: var(--green);
+    border-radius: 4px; flex-shrink: 0; margin-top: 4px;
+  }
+  .why-feature-content h3 {
+    font-size: 20px; font-weight: 800; color: var(--teal);
+    margin-bottom: 8px;
+  }
+  .why-feature-content p {
+    font-size: 16px; color: var(--ink-2); line-height: 1.75;
+  }
+
+  /* ── Team section redesign ──────────────────────────────────── */
+  .team-card-pro {
+    padding: 36px 32px; background: var(--white); border-radius: var(--r-lg);
+    border-left: 5px solid var(--teal); text-align: left;
+    box-shadow: var(--sh-sm);
+  }
+  .team-role-badge {
+    display: inline-block; background: var(--teal); color: #fff;
+    padding: 6px 16px; border-radius: var(--r-pill);
+    font-size: 12px; font-weight: 900; letter-spacing: .1em;
+    text-transform: uppercase; margin-bottom: 16px;
+  }
+  .team-card-pro h3 {
+    color: var(--teal); font-size: 22px; margin-bottom: 6px; font-weight: 800;
+  }
+  .team-credentials {
+    font-size: 14px; font-weight: 700; color: var(--green-deep);
+    margin-bottom: 14px;
+  }
+  .team-card-pro p {
+    font-size: 16px; color: var(--ink-2); line-height: 1.75;
+  }
+
+  /* ── Day in life visual variety ──────────────────────────────── */
+  .day-in-life-section { background: var(--teal-lt) !important; }
+
 </style>
 
 </head>
@@ -650,7 +739,6 @@
           </a>
           <a href="#quiz-section" class="btn btn-white-outline btn-lg">Schedule a Tour →</a>
         </div>
-      </div></div>
       </div>
 
       <!-- Hero image panel — video -->
@@ -666,6 +754,33 @@
         <div class="hero-badge-bot"><span class="dot live-pulse"></span> Now Accepting New Families</div>
       </div>
 
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     STATS BAR
+════════════════════════════════════════════ -->
+<section class="stats-bar">
+  <div class="wrap">
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-number">10+</div>
+        <div class="stat-label">Years Experience</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">100+</div>
+        <div class="stat-label">Utah Families Served</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">0</div>
+        <div class="stat-label">Waitlist</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">&check;</div>
+        <div class="stat-label">Utah Medicaid Accepted</div>
+      </div>
     </div>
   </div>
 </section>
@@ -879,10 +994,10 @@
 <section class="reviews-section">
   <div class="wrap">
     <div class="reviews-header">
-      <div class="eyebrow">Real Families. Real Experiences.</div>
+      <div class="eyebrow white">Real Families. Real Experiences.</div>
       <h2>What Utah Families Say</h2>
       <div class="stars" style="margin-top:14px;">★★★★★</div>
-      <p style="color:var(--ink-2);font-size:15px;font-weight:700;margin-top:4px;">5.0 ★ · Reach Higher ABA Therapy Utah · Google Reviews</p>
+      <p style="color:rgba(255,255,255,.65);font-size:15px;font-weight:700;margin-top:4px;">5.0 ★ · Reach Higher ABA Therapy Utah · Google Reviews</p>
     </div>
     <div class="reviews-grid">
       <div class="review-card">
@@ -925,28 +1040,47 @@
 <!-- ═══════════════════════════════════════════
      WHY CHOOSE US
 ════════════════════════════════════════════ -->
-<section class="why-section">
+<section class="why-section" style="background:var(--paper);">
   <div class="wrap">
     <div class="section-head">
       <div class="eyebrow">Why Families Choose Us</div>
       <h2>What Makes Reach Higher Different</h2>
     </div>
-    <div class="why-grid">
-      <div class="why-card">
-        <h3>Start Within 2 Weeks</h3>
-        <p>No months-long waitlists. Most Utah families are matched with a BCBA and begin sessions within 14 days of their first call. Early intervention is time-sensitive.</p>
+    <div class="split-grid" style="margin-top:44px;">
+      <div>
+        <div class="why-features">
+          <div class="why-feature">
+            <div class="why-feature-accent"></div>
+            <div class="why-feature-content">
+              <h3>Start Within 2 Weeks</h3>
+              <p>No months-long waitlists. Most Utah families are matched with a BCBA and begin sessions within 14 days of their first call. Early intervention is time-sensitive &mdash; we don't make you wait.</p>
+            </div>
+          </div>
+          <div class="why-feature">
+            <div class="why-feature-accent"></div>
+            <div class="why-feature-content">
+              <h3>We Come to You</h3>
+              <p>Sessions happen in your home, your child's school, or your community &mdash; wherever they actually spend their time. Skills learned in real environments generalize faster and last longer.</p>
+            </div>
+          </div>
+          <div class="why-feature">
+            <div class="why-feature-accent"></div>
+            <div class="why-feature-content">
+              <h3>Utah Medicaid Accepted</h3>
+              <p>We verify your insurance and handle all prior authorizations before your first session. Medicaid, BCBS, Aetna, UnitedHealthcare, Cigna, and more. Most families pay $0 out of pocket.</p>
+            </div>
+          </div>
+          <div class="why-feature">
+            <div class="why-feature-accent"></div>
+            <div class="why-feature-content">
+              <h3>A Decade of BCBA Experience</h3>
+              <p>Brianne has been a Board Certified Behavior Analyst since 2016 with a Master's in Education from Arizona State University. She specializes in functional communication and emotional regulation &mdash; and leads every program personally.</p>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="why-card">
-        <h3>We Come to You</h3>
-        <p>Sessions happen in your home, your child’s school, or your community — wherever they actually spend their time. Skills learned in real environments generalize faster.</p>
-      </div>
-      <div class="why-card">
-        <h3>Utah Medicaid Accepted</h3>
-        <p>We verify your insurance and handle all prior authorizations before your first session. Medicaid, BCBS, Aetna, UnitedHealthcare, Cigna, and more. Most families pay $0.</p>
-      </div>
-      <div class="why-card">
-        <h3>A Decade of BCBA Experience</h3>
-        <p>Brianne has been a Board Certified Behavior Analyst since 2016, working with autism and related diagnoses across clinic, home, school, and community settings. She leads every program personally.</p>
+      <div class="split-img">
+        <img src="https://images.pexels.com/photos/3912425/pexels-photo-3912425.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Family creating art together at home" loading="lazy" />
       </div>
     </div>
   </div>
@@ -991,7 +1125,7 @@
         <a href="#quiz-section" class="btn btn-teal-outline">See if Your Child is a Good Fit</a>
       </div>
       <div class="split-img">
-        <img src="https://images.pexels.com/photos/7447264/pexels-photo-7447264.jpeg?auto=compress&cs=tinysrgb&w=800" alt="A young girl in a therapy session with a counselor" loading="lazy" />
+        <img src="https://images.pexels.com/photos/6595499/pexels-photo-6595499.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Father and daughter playing together at home" loading="lazy" />
       </div>
     </div>
   </div>
@@ -1004,7 +1138,7 @@
   <div class="wrap">
     <div class="split-grid">
       <div class="split-img">
-        <img src="https://images.pexels.com/photos/7447271/pexels-photo-7447271.jpeg?auto=compress&cs=tinysrgb&w=800" alt="A child in an in-home therapy session with a therapist" loading="lazy" />
+        <img src="https://images.pexels.com/photos/5442704/pexels-photo-5442704.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Father and son bonding over educational activities at home" loading="lazy" />
       </div>
       <div class="split-content">
         <div class="split-eyebrow">Why In-Home</div>
@@ -1074,26 +1208,28 @@
 <!-- ═══════════════════════════════════════════
      YOUR ABA THERAPY TEAM
 ════════════════════════════════════════════ -->
-<section class="team-section">
+<section class="team-section" style="background:var(--paper);">
   <div class="wrap">
     <div class="section-head">
+      <div class="eyebrow">Your Care Team</div>
       <h2>Your ABA Therapy Team</h2>
+      <p>Every family works with a dedicated two-person clinical team &mdash; a BCBA who designs the program and an RBT who delivers it.</p>
     </div>
     <div class="team-grid">
-      <div class="team-card">
-        <div class="team-role">BCBA</div>
-        <div class="team-icon">👩‍💼</div>
+      <div class="team-card-pro">
+        <div class="team-role-badge">BCBA &mdash; Clinical Director</div>
         <h3>Board Certified Behavior Analyst</h3>
-        <p>Designs your child's therapy program, sets measurable goals, reviews progress weekly, and ensures every session moves toward real outcomes. Your family's clinical leader.</p>
+        <div class="team-credentials">MEd, Arizona State University &middot; BCBA since 2016</div>
+        <p>Brianne designs your child's therapy program, sets measurable goals, and reviews progress weekly. She specializes in functional communication and emotional regulation &mdash; building skills that matter in real life, not just in a session. She leads every Reach Higher program personally.</p>
       </div>
-      <div class="team-card">
-        <div class="team-role">RBT</div>
-        <div class="team-icon">👨‍🏫</div>
+      <div class="team-card-pro">
+        <div class="team-role-badge">RBT &mdash; Direct Therapist</div>
         <h3>Registered Behavior Technician</h3>
-        <p>Delivers day-to-day sessions, implements BCBA-designed strategies, tracks data, and coaches your family. Works under BCBA supervision every step.</p>
+        <div class="team-credentials">State-certified &middot; BACB-supervised &middot; Ongoing training</div>
+        <p>Your RBT delivers day-to-day sessions in your home, implements BCBA-designed strategies, tracks data on every goal, and coaches your family on the techniques they use. Works under direct BCBA supervision at every step.</p>
       </div>
     </div>
-    <a href="#quiz-section" class="btn btn-green" style="margin-top: 36px;">Meet Your Team — Call Today</a>
+    <a href="#quiz-section" class="btn btn-green" style="margin-top: 36px;">Meet Your Team &mdash; Call Today</a>
   </div>
 </section>
 
