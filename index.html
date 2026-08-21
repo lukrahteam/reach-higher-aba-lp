@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="In-home ABA therapy for children with autism in Westminster, CO. BCBA-led, no waitlist, Colorado Medicaid accepted. Free consultation — call today." />
-  <title>ABA Therapy in Westminster, CO — Helping Kids Thrive | Reach Higher ABA</title>
+  <meta name="description" content="In-home ABA therapy for children with autism across Utah. BCBA-led, no waitlist, Utah Medicaid accepted. Free consultation — call today." />
+  <title>ABA Therapy in Utah — Helping Kids Thrive | Reach Higher ABA</title>
   <link rel="icon" href="https://reachhigheraba.com/wp-content/uploads/2025/05/favicon.svg" />
   <!-- Google Ads conversion tag — INSERT your gtag ID here: -->
   <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=AW-XXXXXXXXXX"></script>
@@ -137,7 +137,7 @@
     gap: 40px;
     align-items: center;
   }
-  @media (min-width: 860px) {
+  @media (min-width: 720px) {
     .hero-grid { grid-template-columns: 1.1fr 1fr; gap: 52px; }
   }
   .hero-copy { color: #fff; position: relative; z-index: 1; }
@@ -592,6 +592,21 @@
     width: fit-content;
     text-align: center;
   }
+
+  /* ── Split section layouts ─────────────────────────────────────────────── */
+  .split-grid { display: grid; grid-template-columns: 1fr; gap: 48px; align-items: center; }
+  @media (min-width: 720px) { .split-grid { grid-template-columns: 1fr 1fr; gap: 64px; } }
+  .split-img { border-radius: var(--r-lg); overflow: hidden; box-shadow: 0 8px 32px rgba(11,79,85,.12); }
+  .split-img img { width: 100%; height: 400px; object-fit: cover; display: block; }
+  .split-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--green-deep); margin-bottom: 12px; }
+  .split-content h2 { font-size: clamp(22px, 3vw, 34px); font-weight: 800; margin-bottom: 16px; line-height: 1.2; color: var(--teal); }
+  .split-content > p { font-size: 16px; line-height: 1.8; color: var(--ink-2); margin-bottom: 20px; }
+  .split-list { list-style: none; margin: 0 0 28px; }
+  .split-list li { font-size: 16px; line-height: 1.65; color: var(--ink-2); padding: 10px 0; border-bottom: 1px solid var(--line); display: flex; gap: 12px; align-items: flex-start; }
+  .split-list li::before { content: "✓"; color: var(--green-deep); font-weight: 900; flex-shrink: 0; }
+  /* Bump global content font sizes */
+  .why-card p, .review-text, .faq-a, .timeline-step p, .team-card p, .program-card p { font-size: 16px !important; line-height: 1.75 !important; }
+  .why-card h3, .faq-q { font-size: 18px !important; }
 </style>
 
 </head>
@@ -613,17 +628,17 @@
     <div class="hero-grid">
 
       <div class="hero-copy">
-        <div class="eyebrow white">In-Home ABA Therapy · Westminster, CO</div>
+        <div class="eyebrow white">In-Home ABA Therapy · Utah</div>
         <h1>
           ABA Therapy in<br>
-          <span class="accent">Westminster, CO — Helping Kids Thrive</span>
+          <span class="accent">Utah — Helping Kids Thrive</span>
         </h1>
-        <p class="hero-sub">In-home ABA therapy for children ages 18 months–12 years across Westminster and the Denver metro. BCBA-led programs, no waitlist, Colorado Medicaid accepted.</p>
+        <p class="hero-sub">In-home ABA therapy for children ages 18 months–12 years across Salt Lake City, Utah County, and surrounding communities. BCBA-led programs, no waitlist, Utah Medicaid accepted.</p>
 
         <!-- Trust chips -->
         <div class="hero-trust-row">
           <div class="hero-chip"><span class="dot live-pulse"></span> No Waitlist — Start in 2 Weeks</div>
-          <div class="hero-chip"><span class="dot"></span> Colorado Medicaid Accepted</div>
+          <div class="hero-chip"><span class="dot"></span> Utah Medicaid Accepted</div>
           <div class="hero-chip"><span class="dot"></span> BCBA-Led From Day One</div>
           <div class="hero-chip"><span id="live-indicator" class="dot live-pulse" style="background:#7effd4"></span> Live specialists available now</div>
         </div>
@@ -733,7 +748,7 @@
       <!-- Loading -->
       <div class="quiz-loading">
         <div class="spinner"></div>
-        <p>Checking availability in Westminster, CO…</p>
+        <p>Checking availability in Utah…</p>
         <small>This usually takes just a moment.</small>
       </div>
 
@@ -741,7 +756,7 @@
       <div class="form-section" id="form-section">
         <div class="form-result-note">
           <span class="icon">🎉</span>
-          🎉 Good news — we have immediate openings in Westminster, CO.
+          🎉 Good news — we have immediate openings in Utah.
         </div>
         <h3 style="font-size:22px;margin-bottom:18px;">Schedule Your Free Consultation</h3>
         <form id="lead-form" class="form-fields">
@@ -777,7 +792,7 @@
             <label class="field-label" for="insurance">Insurance / coverage</label>
             <select id="insurance" name="insurance">
               <option value="">Select…</option>
-              <option>Colorado Medicaid</option>
+              <option>Utah Medicaid</option>
               <option>Private insurance</option>
               <option>Both</option>
               <option>Not sure</option>
@@ -797,7 +812,7 @@
       <div class="form-success">
         <div class="check"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
         <h3>We'll be in touch soon!</h3>
-        <p>Someone from our Westminster team will call or text you within 2 hours to answer every question and schedule your free consultation.</p>
+        <p>Someone from our Utah team will call or text you within 2 hours to answer every question and schedule your free consultation.</p>
       </div>
 
     </div><!-- .quiz-card -->
@@ -815,7 +830,7 @@
       <p>We verify your benefits before your first session — zero surprises.</p>
     </div>
     <div class="ins-logos">
-      <div class="ins-badge"><span class="ins-dot"></span> Colorado Medicaid (HCPF)</div>
+      <div class="ins-badge"><span class="ins-dot"></span> Utah Medicaid</div>
       <div class="ins-badge"><span class="ins-dot"></span> Blue Cross Blue Shield</div>
       <div class="ins-badge"><span class="ins-dot"></span> Aetna</div>
       <div class="ins-badge"><span class="ins-dot"></span> UnitedHealthcare</div>
@@ -846,7 +861,7 @@
       <div class="step">
         <div class="step-num">2</div>
         <h3>Benefits Verified</h3>
-        <p>We confirm your Colorado Medicaid or insurance coverage and handle every piece of paperwork. You hear back within 24–48 hours.</p>
+        <p>We confirm your Utah Medicaid or insurance coverage and handle every piece of paperwork. You hear back within 24–48 hours.</p>
       </div>
       <div class="step">
         <div class="step-num">3</div>
@@ -864,42 +879,42 @@
 <section class="reviews-section">
   <div class="wrap">
     <div class="reviews-header">
-      <div class="eyebrow">About Our Practice</div>
-      <h2>BCBA-Led, Family-First, Built for Real Life</h2>
+      <div class="eyebrow">Real Families. Real Experiences.</div>
+      <h2>What Utah Families Say</h2>
       <div class="stars" style="margin-top:14px;">★★★★★</div>
-      <p style="color:var(--ink-2);font-size:15px;font-weight:700;margin-top:4px;">Serving families across Colorado and Utah since 2016</p>
+      <p style="color:var(--ink-2);font-size:15px;font-weight:700;margin-top:4px;">5.0 ★ · Reach Higher ABA Therapy Utah · Google Reviews</p>
     </div>
     <div class="reviews-grid">
       <div class="review-card">
-        <div class="review-stars" style="font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--green-deep);">10+ Years of BCBA Experience</div>
-        <div class="review-text">Brianne earned her BCBA certification in November 2016 and has since worked with autism, developmental delays, ADHD, Down syndrome, selective mutism, and anxiety across clinic, home, school, and community settings.</div>
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"Reach Higher ABA has been incredibly helpful and supportive throughout our journey. They have continued to follow up with us, answer our questions, and help guide us through the process. They never gave up on us. We're grateful to have found such a caring ABA provider in Utah."</div>
         <div class="review-meta">
-          <div class="review-avatar">B</div>
+          <div class="review-avatar">N</div>
           <div class="review-info">
-            <strong>Brianne, BCBA, MEd</strong>
-            <div class="review-via">Lead Clinician, Reach Higher ABA</div>
+            <strong>Nichole G.</strong>
+            <div class="review-via">via Google</div>
           </div>
         </div>
       </div>
       <div class="review-card">
-        <div class="review-stars" style="font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--green-deep);">Specialized in Communication &amp; Regulation</div>
-        <div class="review-text">Brianne specializes in functional communication, emotional regulation, and building behavior support systems that promote independence. Her approach is practical, compassionate, and built around each child’s real daily routines.</div>
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"I had a very good experience with Reach Higher ABA. They were very kind, patient, and took the time to help me understand everything. They helped guide me through the process, connected me with a provider to get my son evaluated. I truly felt supported and cared for."</div>
         <div class="review-meta">
-          <div class="review-avatar">B</div>
+          <div class="review-avatar">N</div>
           <div class="review-info">
-            <strong>Brianne, BCBA, MEd</strong>
-            <div class="review-via">Arizona State University, Applied Behavior Analysis</div>
+            <strong>Nikol Q.</strong>
+            <div class="review-via">via Google</div>
           </div>
         </div>
       </div>
       <div class="review-card">
-        <div class="review-stars" style="font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--green-deep);">Families Learn Every Session</div>
-        <div class="review-text">Every session includes parent coaching. Brianne’s focus is always on empowering families with strategies they can use confidently across all settings — not just during scheduled therapy hours.</div>
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"Very impressed by the quick and kind service! They've also followed up with me to make sure all is well. I feel very supported and appreciate the outstanding communication and customer service!"</div>
         <div class="review-meta">
-          <div class="review-avatar">B</div>
+          <div class="review-avatar">C</div>
           <div class="review-info">
-            <strong>Brianne, BCBA, MEd</strong>
-            <div class="review-via">Reach Higher ABA</div>
+            <strong>Charlotte S.</strong>
+            <div class="review-via">via Google · Local Guide</div>
           </div>
         </div>
       </div>
@@ -919,14 +934,14 @@
     <div class="why-grid">
       <div class="why-card">
         <h3>Start Within 2 Weeks</h3>
-        <p>No months-long waitlists. Most Colorado families are matched with a BCBA and begin sessions within 14 days of their first call. Early intervention is time-sensitive.</p>
+        <p>No months-long waitlists. Most Utah families are matched with a BCBA and begin sessions within 14 days of their first call. Early intervention is time-sensitive.</p>
       </div>
       <div class="why-card">
         <h3>We Come to You</h3>
         <p>Sessions happen in your home, your child’s school, or your community — wherever they actually spend their time. Skills learned in real environments generalize faster.</p>
       </div>
       <div class="why-card">
-        <h3>Colorado Medicaid Accepted</h3>
+        <h3>Utah Medicaid Accepted</h3>
         <p>We verify your insurance and handle all prior authorizations before your first session. Medicaid, BCBS, Aetna, UnitedHealthcare, Cigna, and more. Most families pay $0.</p>
       </div>
       <div class="why-card">
@@ -960,16 +975,24 @@
   </div>
 </section>
 
-<section class="aba-info-section">
+<section style="padding:80px 0;background:var(--paper);">
   <div class="wrap">
-    <div class="section-head">
-      <h2>What is ABA Therapy?</h2>
-    </div>
-    <div class="aba-info-body">
-      <p>Applied Behavior Analysis (ABA) is a science-based approach to understanding and improving behavior. For children with autism, ABA therapy is play-based, practical, and data-driven.</p>
-      <p style="margin-top: 18px;">Every session is one-on-one, designed by a Board Certified Behavior Analyst (BCBA), and deeply human. We focus on skills that matter in real life — communication, self-care, social connection, independence. Progress is measured week by week.</p>
-      <p style="margin-top: 18px;">ABA isn't rigid. It's warm, practical, and built around your child's natural interests and daily routines. The goal is not compliance — it's helping your child thrive on their own terms.</p>
-      <a href="#quiz-section" class="btn btn-teal-outline" style="margin-top: 24px;">See if Your Child is a Good Fit</a>
+    <div class="split-grid">
+      <div class="split-content">
+        <div class="split-eyebrow">Evidence-Based Care</div>
+        <h2>What is ABA Therapy?</h2>
+        <p>Applied Behavior Analysis is a science-based approach focused on skills that matter in real daily life — communication, self-care, social connection, and independence. For children with autism, ABA is play-based, warm, and built entirely around your child.</p>
+        <ul class="split-list">
+          <li>One-on-one sessions designed and supervised by a Board Certified Behavior Analyst</li>
+          <li>Progress measured and tracked every week — no guesswork</li>
+          <li>Built around your child's natural interests, not a generic program</li>
+          <li>The goal is your child thriving on their own terms, not just compliance</li>
+        </ul>
+        <a href="#quiz-section" class="btn btn-teal-outline">See if Your Child is a Good Fit</a>
+      </div>
+      <div class="split-img">
+        <img src="https://images.pexels.com/photos/7447264/pexels-photo-7447264.jpeg?auto=compress&cs=tinysrgb&w=800" alt="A young girl in a therapy session with a counselor" loading="lazy" />
+      </div>
     </div>
   </div>
 </section>
@@ -977,30 +1000,25 @@
 <!-- ═══════════════════════════════════════════
      IN-HOME BENEFITS
 ════════════════════════════════════════════ -->
-<section class="benefits-section">
+<section style="padding:80px 0;background:#fff;">
   <div class="wrap">
-    <div class="section-head">
-      <h2>In-Home ABA Therapy & Its Benefits</h2>
-      <p style="margin-top: 12px; max-width: 620px; color: var(--ink-2);">In-home ABA is not the easier option. It's often the better one.</p>
-    </div>
-    <div class="benefits-grid">
-      <div class="benefit-card">
-        <div class="benefit-icon">🧠</div>
-        <h3>Faster Skill Generalization</h3>
-        <p>Skills learned at home transfer naturally into school, community, and family routines. Your child practices in real life, not a clinic room.</p>
+    <div class="split-grid">
+      <div class="split-img">
+        <img src="https://images.pexels.com/photos/7447271/pexels-photo-7447271.jpeg?auto=compress&cs=tinysrgb&w=800" alt="A child in an in-home therapy session with a therapist" loading="lazy" />
       </div>
-      <div class="benefit-card">
-        <div class="benefit-icon">🏡</div>
-        <h3>No Disruption to Your Routine</h3>
-        <p>Therapy happens where your child lives and learns — in their bedroom, kitchen, backyard. Sessions integrate into real daily life.</p>
-      </div>
-      <div class="benefit-card">
-        <div class="benefit-icon">👨‍👩‍👧‍👦</div>
-        <h3>Real-Life Routine Integration</h3>
-        <p>Parents and siblings are part of every session. Family members learn strategies they use at home, every single day.</p>
+      <div class="split-content">
+        <div class="split-eyebrow">Why In-Home</div>
+        <h2>In-Home ABA &amp; Its Benefits</h2>
+        <p>In-home ABA is not the easier option. It's often the better one. Skills practiced in the real environment — your home, your routines, your family — transfer faster and last longer.</p>
+        <ul class="split-list">
+          <li>Skills generalize into school, community, and daily routines immediately</li>
+          <li>No commute, no waiting room — therapy fits your schedule and your home</li>
+          <li>Parents and siblings participate and learn strategies they use every day</li>
+          <li>Sessions adapt in real time to your child's environment and daily rhythms</li>
+        </ul>
+        <a href="#quiz-section" class="btn btn-green">Check Availability in Your Area</a>
       </div>
     </div>
-    <a href="#quiz-section" class="btn btn-green" style="margin-top: 32px;">Check Availability in Your Area</a>
   </div>
 </section>
 
@@ -1011,7 +1029,7 @@
   <div class="wrap">
     <div class="section-head">
       <h2>ABA Therapy Near You</h2>
-      <p style="margin-top: 14px; color: var(--ink-2);">We serve families across Denver metro with in-home ABA therapy. No clinic address needed — BCBAs and RBTs come to you.</p>
+      <p style="margin-top: 14px; color: var(--ink-2);">We serve families across Salt Lake City, Utah County, and surrounding communities with in-home ABA therapy. No clinic address needed — BCBAs and RBTs come to you.</p>
     </div>
     <a href="tel:3857869208" class="btn btn-green btn-lg" style="margin-top: 28px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12.18 19.79 19.79 0 0 1 1.61 3.6 2 2 0 0 1 3.6 1.41h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.07a16 16 0 0 0 6 6l1-1a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> See if We Serve Your Area</a>
   </div>
@@ -1116,18 +1134,18 @@
   <div class="wrap">
     <div class="section-head">
       <h2>Service Areas</h2>
-      <p style="margin-top: 12px; color: var(--ink-2);">We serve families throughout Denver metro and surrounding communities.</p>
+      <p style="margin-top: 12px; color: var(--ink-2);">We serve families throughout Salt Lake City, Utah County, and surrounding areas.</p>
     </div>
     <div style="margin-top: 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
-      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">Westminster</div>
-      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">Arvada</div>
-      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">Thornton</div>
-      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">Broomfield</div>
-      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">Northglenn</div>
-      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">Federal Heights</div>
-      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">Commerce City</div>
-      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">Wheat Ridge</div>
-      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">Lakewood</div>
+      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">Salt Lake City</div>
+      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">Lehi</div>
+      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">Orem</div>
+      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">Provo</div>
+      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">American Fork</div>
+      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">West Jordan</div>
+      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">Sandy</div>
+      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">South Jordan</div>
+      <div style="padding: 20px; background: var(--paper); border-radius: var(--r-lg); text-align: center; font-weight: 700;">Murray</div>
     </div>
   </div>
 </section>
@@ -1148,7 +1166,7 @@
           What will this cost me?
           <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">Most insurance plans — including Colorado Medicaid — cover ABA therapy fully. We verify your specific benefits before your first session, so there are zero surprises. Most families pay $0 out of pocket.</div>
+        <div class="faq-a">Most insurance plans — including Utah Medicaid — cover ABA therapy fully. We verify your specific benefits before your first session, so there are zero surprises. Most families pay $0 out of pocket.</div>
       </div>
 
       <div class="faq-item">
@@ -1177,10 +1195,10 @@
 
       <div class="faq-item">
         <button class="faq-q">
-          Do you accept Colorado Medicaid?
+          Do you accept Utah Medicaid?
           <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">Yes. We are in-network with Colorado Medicaid (HCPF) and most major commercial insurance plans. We handle the entire benefits verification process for you.</div>
+        <div class="faq-a">Yes. We are in-network with Utah Medicaid and most major commercial insurance plans. We handle the entire benefits verification process for you.</div>
       </div>
 
       <div class="faq-item">
@@ -1235,13 +1253,13 @@
     <div class="footer-row">
       <img src="https://reachhigheraba.com/wp-content/uploads/2025/05/Color-White-1024x435.png" alt="Reach Higher ABA" class="footer-logo" />
       <div class="footer-links">
-        <span style="color:rgba(255,255,255,.55);font-size:13px;font-weight:600;">Westminster, CO</span>
+        <span style="color:rgba(255,255,255,.55);font-size:13px;font-weight:600;">Utah</span>
         <a href="tel:3857869208">(385) 786-9208</a>
         <a href="/privacy-policy">Privacy Policy</a>
       </div>
       <div class="footer-hipaa"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> HIPAA Compliant</div>
     </div>
-    <div class="footer-copy">© 2026 Reach Higher ABA · All rights reserved · ABA therapy services in Westminster, CO</div>
+    <div class="footer-copy">© 2026 Reach Higher ABA · All rights reserved · ABA therapy services across Utah</div>
   </div>
 </footer>
 
