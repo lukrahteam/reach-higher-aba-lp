@@ -6,9 +6,14 @@
   <meta name="description" content="In-home ABA therapy for children with autism across Utah. BCBA-led, no waitlist, Utah Medicaid accepted. Free consultation — call today." />
   <title>ABA Therapy in Utah — Helping Kids Thrive | Reach Higher ABA</title>
   <link rel="icon" href="https://reachhigheraba.com/wp-content/uploads/2025/05/favicon.svg" />
-  <!-- Google Ads conversion tag — INSERT your gtag ID here: -->
-  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=AW-XXXXXXXXXX"></script>
-  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','AW-XXXXXXXXXX');</script> -->
+  <!-- Google Ads conversion tracking — Reach Higher ABA (AW-17815365174) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17815365174"></script>
+  <script>
+    window.dataLayer=window.dataLayer||[];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js',new Date());
+    gtag('config','AW-17815365174');
+  </script>
   
 <style>
   /* ── Reset & Base ─────────────────────────────────────────────── */
@@ -1557,15 +1562,25 @@
       .then(function() {
         document.getElementById('quiz-card').querySelector('.form-section').classList.remove('active');
         document.getElementById('quiz-card').querySelector('.form-success').classList.add('active');
+        // Fire Google Ads form submit conversion
+        if(typeof gtag === 'function') gtag('event','conversion',{'send_to':'AW-17815365174/r8BQCK2Jmc0cELbMg69C'});
       }).catch(function() {
         // Show success state even on API error — don't block UX
         document.getElementById('quiz-card').querySelector('.form-section').classList.remove('active');
         document.getElementById('quiz-card').querySelector('.form-success').classList.add('active');
+        if(typeof gtag === 'function') gtag('event','conversion',{'send_to':'AW-17815365174/r8BQCK2Jmc0cELbMg69C'});
       }).finally(function() {
         btn.disabled = false;
       });
     });
   }
+
+  // ── Phone click conversion ──────────────────────────────────
+  document.querySelectorAll('a[href^="tel:"]').forEach(function(el){
+    el.addEventListener('click', function(){
+      if(typeof gtag === 'function') gtag('event','conversion',{'send_to':'AW-17815365174/HT07CLfO5-YbELbMg69C'});
+    });
+  });
 
   // ── FAQ accordion ────────────────────────────────────
   document.querySelectorAll('.faq-q').forEach(function(btn){
