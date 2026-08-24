@@ -121,8 +121,6 @@ export async function onRequestPost(context) {
     source,
     tags,
     gclId:        gclid       || undefined,
-    utmSource:    utmSource   || undefined,
-    utmCampaign:  utmCampaign || undefined,
   };
 
   let contactId;
@@ -218,8 +216,6 @@ export async function onRequestPost(context) {
         source:       'Lukrah LP',
         tags:         ['lukrah-lp', 'google-ads'],
         gclId:        gclid       || undefined,
-        utmSource:    utmSource   || undefined,
-        utmCampaign:  utmCampaign || undefined,
       };
 
       const clientRes = await fetch(`${GHL_BASE}/contacts/`, {
