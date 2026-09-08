@@ -255,8 +255,51 @@
   }
   @media (max-width: 520px) { .quiz-card { padding: 28px 20px; } }
   .quiz-card h2 { font-size: clamp(24px, 3vw, 34px); letter-spacing: -.02em; }
+  .quiz-step { margin-top: 28px; }
+  .quiz-q { font-weight: 800; font-size: 16px; margin-bottom: 14px; color: var(--ink); }
+  .quiz-opts { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-opt {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px; border: 2px solid var(--line);
+    border-radius: var(--r-md); cursor: pointer;
+    font-weight: 700; font-size: 15px; color: var(--ink);
+    transition: all .15s ease; background: var(--white);
+    -webkit-appearance: none; width: 100%; text-align: left;
+  }
+  .quiz-opt:hover { border-color: var(--teal); background: var(--teal-lt); }
+  .quiz-opt.selected { border-color: var(--green); background: var(--green-lt); }
+  .quiz-opt .radio {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid var(--line); flex-shrink: 0;
+    background: var(--white); transition: all .15s;
+  }
+  .quiz-opt.selected .radio { border-color: var(--green); background: var(--green); box-shadow: inset 0 0 0 4px #fff; }
+  .quiz-next {
+    margin-top: 20px; width: 100%;
+    background: var(--teal); color: #fff;
+    border: none; padding: 16px; border-radius: var(--r-pill);
+    font-weight: 800; font-size: 16px; cursor: pointer;
+    transition: background .18s;
+  }
+  .quiz-next:hover { background: var(--teal-deep); }
+  /* Loading state */
+  .quiz-loading {
+    display: none; text-align: center; padding: 40px 20px;
+  }
+  .quiz-loading.active { display: block; }
+  .spinner {
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 4px solid var(--teal-lt);
+    border-top-color: var(--teal);
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .quiz-loading p { font-weight: 700; color: var(--teal); font-size: 16px; }
+  .quiz-loading small { color: var(--ink-2); font-size: 14px; }
   /* Form */
-  .form-section { display: block; margin-top: 28px; }
+  .form-section { display: none; margin-top: 28px; }
+  .form-section.active { display: block; }
   .form-success { display: none; text-align: center; padding: 32px 16px; }
   .form-success.active { display: block; }
   .form-success .check {
@@ -669,7 +712,7 @@
 ════════════════════════════════════════════ -->
 <div class="sticky-bar">
   <a href="tel:3857869208" class="sb-call"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12.18 19.79 19.79 0 0 1 1.61 3.6 2 2 0 0 1 3.6 1.41h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.07a16 16 0 0 0 6 6l1-1a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Call Now</a>
-  <a href="#quiz-section" class="sb-form">Get Started →</a>
+  <a href="#quiz-section" class="sb-form">Schedule a Tour →</a>
 </div>
 
 <!-- ═══════════════════════════════════════════
@@ -700,7 +743,7 @@
           <a href="tel:3857869208" class="btn btn-green btn-lg">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12.18 19.79 19.79 0 0 1 1.61 3.6 2 2 0 0 1 3.6 1.41h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.07a16 16 0 0 0 6 6l1-1a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Call an Intake Specialist Now
           </a>
-          <a href="#quiz-section" class="btn btn-white-outline btn-lg">Get Started →</a>
+          <a href="#quiz-section" class="btn btn-white-outline btn-lg">Schedule a Tour →</a>
         </div>
       </div>
 
@@ -749,23 +792,92 @@
 </section>
 
 <!-- ═══════════════════════════════════════════
-     CONSULTATION FORM
+     QUIZ + FORM
 ════════════════════════════════════════════ -->
 <section class="quiz-section" id="quiz-section">
   <div class="wrap">
     <div class="section-head">
       <div class="eyebrow">Get Started</div>
-      <h2>Schedule Your Free<br>ABA Consultation</h2>
-      <p>Fill out the short form below and a care coordinator will reach out within 2 hours.</p>
+      <h2>Is Reach Higher ABA the right fit<br>for your child?</h2>
+      <p>Answer 3 quick questions — we'll confirm availability and get you a free consultation.</p>
     </div>
 
     <div class="quiz-card" id="quiz-card">
 
-      <!-- Direct Form -->
-      <div class="form-section" id="form-section" style="display:block;">
+      <!-- Steps -->
+      <div class="quiz-steps">
+
+        <!-- Q1 -->
+        <div class="quiz-step" id="q1">
+          <div class="quiz-q">How old is your child?</div>
+          <div class="quiz-opts">
+            <button class="quiz-opt" data-q="age" data-val="Under 18 months">
+              <span class="radio"></span> Under 18 months
+            </button>
+            <button class="quiz-opt" data-q="age" data-val="18 months–3 years">
+              <span class="radio"></span> 18 months – 3 years
+            </button>
+            <button class="quiz-opt" data-q="age" data-val="3–8 years">
+              <span class="radio"></span> 3 – 8 years
+            </button>
+            <button class="quiz-opt" data-q="age" data-val="8–12 years">
+              <span class="radio"></span> 8 – 12 years
+            </button>
+          </div>
+          <div id="q1-prompt" style="display:none;color:#b91c1c;font-size:13px;font-weight:700;margin-top:8px;">Please select an option to continue.</div>
+          <button class="quiz-next" data-next="2">Continue →</button>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-step" id="q2" style="display:none">
+          <div class="quiz-q">Has your child received an autism diagnosis or referral?</div>
+          <div class="quiz-opts">
+            <button class="quiz-opt" data-q="diag" data-val="yes">
+              <span class="radio"></span> Yes, they have a diagnosis
+            </button>
+            <button class="quiz-opt" data-q="diag" data-val="concerns">
+              <span class="radio"></span> Not yet — but I have concerns
+            </button>
+            <button class="quiz-opt" data-q="diag" data-val="figuring">
+              <span class="radio"></span> We're still figuring it out
+            </button>
+          </div>
+          <div id="q2-prompt" style="display:none;color:#b91c1c;font-size:13px;font-weight:700;margin-top:8px;">Please select an option to continue.</div>
+          <button class="quiz-next" data-next="3">Continue →</button>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-step" id="q3" style="display:none">
+          <div class="quiz-q">Are you currently on a waitlist at another provider?</div>
+          <div class="quiz-opts">
+            <button class="quiz-opt" data-q="waitlist" data-val="yes">
+              <span class="radio"></span> Yes — and I'm frustrated
+            </button>
+            <button class="quiz-opt" data-q="waitlist" data-val="no">
+              <span class="radio"></span> No, just starting to look
+            </button>
+            <button class="quiz-opt" data-q="waitlist" data-val="haven't">
+              <span class="radio"></span> Haven't started looking yet
+            </button>
+          </div>
+          <div id="q3-prompt" style="display:none;color:#b91c1c;font-size:13px;font-weight:700;margin-top:8px;">Please select an option to continue.</div>
+          <button class="quiz-next" data-next="4">See Availability →</button>
+        </div>
+
+      </div><!-- .quiz-steps -->
+
+      <!-- Loading -->
+      <div class="quiz-loading">
+        <div class="spinner"></div>
+        <p>Checking availability in Utah…</p>
+        <small>This usually takes just a moment.</small>
+      </div>
+
+      <!-- Result + Form -->
+      <div class="form-section" id="form-section">
         <div class="form-result-note">
           <span class="icon">🎉</span>
-          🎉 Good news — we have immediate openings in Utah. No waitlist.
+          🎉 Good news — we have immediate openings in Utah.
         </div>
         <h3 style="font-size:22px;margin-bottom:18px;">Schedule Your Free Consultation</h3>
         <form id="lead-form" class="form-fields">
@@ -786,16 +898,6 @@
           <div class="field-group">
             <label class="field-label" for="email">Email</label>
             <input type="email" id="email" name="email" placeholder="jane@example.com" autocomplete="email" />
-          </div>
-          <div class="field-group">
-            <label class="field-label" for="diagnosis-status">Has your child received an autism diagnosis? <span class="field-required">*</span></label>
-            <select id="diagnosis-status" name="diagnosis_status" required>
-              <option value="">Select…</option>
-              <option value="yes">Yes, they have a diagnosis</option>
-              <option value="in-progress">In progress / waiting on evaluation</option>
-              <option value="no">Not yet — but I have concerns</option>
-              <option value="unsure">Not sure / just exploring options</option>
-            </select>
           </div>
           <div class="field-group">
             <label class="field-label" for="child-age">Child's age</label>
@@ -1282,7 +1384,7 @@
     <p>The sooner your child starts, the more progress they make. One 20-minute call is all it takes to find out if we're the right fit.</p>
     <div class="cta-row">
       <a href="tel:3857869208" class="btn btn-green btn-lg"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12.18 19.79 19.79 0 0 1 1.61 3.6 2 2 0 0 1 3.6 1.41h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.07a16 16 0 0 0 6 6l1-1a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Call an Intake Specialist — (385) 786-9208</a>
-      <a href="#quiz-section" class="btn btn-white-outline">Or fill out the form above ↑</a>
+      <a href="#quiz-section" class="btn btn-white-outline">Or fill out the 3-question form ↑</a>
     </div>
     <div class="trust-line">
       <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> HIPAA Compliant</span>
@@ -1317,6 +1419,66 @@
 
 <script>
 (function(){
+  // ── Quiz engine ──────────────────────────────────────
+  var answers = {};
+  var currentQ = 1;
+
+  function showQ(n){
+    document.querySelectorAll('.quiz-step').forEach(function(s){ s.style.display='none'; });
+    var el = document.getElementById('q'+n);
+    if(el) el.style.display='block';
+    currentQ = n;
+  }
+
+  document.querySelectorAll('.quiz-opt').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var parent = this.closest('.quiz-step');
+      parent.querySelectorAll('.quiz-opt').forEach(function(b){ b.classList.remove('selected'); });
+      this.classList.add('selected');
+      var q = this.dataset.q;
+      answers[q] = this.dataset.val;
+      // Auto-advance or wait for Next
+      if(q === 'age'){
+        // Pre-fill age in form if present
+        var ageField = document.getElementById('child-age');
+        if(ageField) ageField.value = this.dataset.val;
+      }
+    });
+  });
+
+  document.querySelectorAll('.quiz-next').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var q = parseInt(this.dataset.next) - 1;
+      var opts = document.querySelectorAll('#q'+q+' .quiz-opt');
+      var anySelected = false;
+      opts.forEach(function(o){ if(o.classList.contains('selected')) anySelected=true; });
+      if(!anySelected){ 
+        // Show gentle prompt
+        var prompt = document.getElementById('q'+q+'-prompt');
+        if(prompt) prompt.style.display='block';
+        return;
+      }
+      var next = parseInt(this.dataset.next);
+      if(next <= 3){
+        showQ(next);
+      } else {
+        runLoading();
+      }
+    });
+  });
+
+  function runLoading(){
+    var quizCard = document.getElementById('quiz-card');
+    quizCard.querySelector('.quiz-steps').style.display='none';
+    var loading = quizCard.querySelector('.quiz-loading');
+    loading.classList.add('active');
+    setTimeout(function(){
+      loading.classList.remove('active');
+      quizCard.querySelector('.form-section').classList.add('active');
+    }, 1600);
+  }
+
+  showQ(1);
 
   // ── Form submission ──────────────────────────────────
   var form = document.getElementById('lead-form');
@@ -1335,7 +1497,10 @@
       var data = Object.assign({
         partial:     !!isPartial,
         source:      'Landing Page',
-        pageVariant: 'main',
+        pageVariant: 'quiz',
+        quizAge:      answers.age       || '',
+        quizDiag:     answers.diag      || '',
+        quizWaitlist: answers.waitlist  || '',
       }, _getUTM(), payload);
       return fetch('/api/lead', {
         method:  'POST',
@@ -1356,8 +1521,7 @@
             lastName:  (document.getElementById('last-name')   || {}).value || '',
             email:     (document.getElementById('email')       || {}).value || '',
             childAge:  (document.getElementById('child-age')   || {}).value || '',
-            insurance:       (document.getElementById('insurance')        || {}).value || '',
-            quizDiag: (document.getElementById('diagnosis-status') || {}).value || '',
+            insurance: (document.getElementById('insurance')   || {}).value || '',
           }, true);
         }
       });
@@ -1374,9 +1538,8 @@
             phone:     (document.getElementById('phone')      || {}).value || '',
             firstName: (document.getElementById('first-name') || {}).value || '',
             lastName:  (document.getElementById('last-name')  || {}).value || '',
-            childAge:  (document.getElementById('child-age')       || {}).value || '',
-            insurance: (document.getElementById('insurance')        || {}).value || '',
-            quizDiag:  (document.getElementById('diagnosis-status') || {}).value || '',
+            childAge:  (document.getElementById('child-age')  || {}).value || '',
+            insurance: (document.getElementById('insurance')  || {}).value || '',
           }, true);
         }
       });
@@ -1394,18 +1557,17 @@
         phone:     (document.getElementById('phone')       || {}).value || '',
         email:     (document.getElementById('email')       || {}).value || '',
         childAge:  (document.getElementById('child-age')   || {}).value || '',
-        insurance:  (document.getElementById('insurance')        || {}).value || '',
-            quizDiag:   (document.getElementById('diagnosis-status') || {}).value || '',
+        insurance: (document.getElementById('insurance')   || {}).value || '',
       }, false)
       .then(function() {
-        document.getElementById('quiz-card').querySelector('.form-section').style.display='none';
-        document.getElementById('quiz-card').querySelector('.form-success').style.display='block';
+        document.getElementById('quiz-card').querySelector('.form-section').classList.remove('active');
+        document.getElementById('quiz-card').querySelector('.form-success').classList.add('active');
         // Fire Google Ads form submit conversion
         if(typeof gtag === 'function') gtag('event','conversion',{'send_to':'AW-17815365174/r8BQCK2Jmc0cELbMg69C'});
       }).catch(function() {
         // Show success state even on API error — don't block UX
-        document.getElementById('quiz-card').querySelector('.form-section').style.display='none';
-        document.getElementById('quiz-card').querySelector('.form-success').style.display='block';
+        document.getElementById('quiz-card').querySelector('.form-section').classList.remove('active');
+        document.getElementById('quiz-card').querySelector('.form-success').classList.add('active');
         if(typeof gtag === 'function') gtag('event','conversion',{'send_to':'AW-17815365174/r8BQCK2Jmc0cELbMg69C'});
       }).finally(function() {
         btn.disabled = false;
