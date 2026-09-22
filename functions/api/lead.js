@@ -13,9 +13,9 @@
  *   New Lead stage: ac11cac3-c337-41c2-bd92-3ac32447c9bb
  *
  * CLIENT GHL (Reach Higher ABA's own account):
- *   PIT: set in env as GHL_CLIENT_PIT
+ *   Location: CV24QvQB6KnATRbdvBxm
+ *   PIT: set in env as GHL_CLIENT_PIT (pit-a0747a2b-1ddd-46fe-8a71-3dd1012d0595)
  *   Only full submits are forwarded (not partial/progressive captures).
- *   Needs their GHL locationId to be added once confirmed.
  *
  * Environment variables (CF Pages → Settings → Environment Variables):
  *   GHL_PIT              Lukrah's PIT for the Reach Higher ABA sub-account
@@ -27,6 +27,9 @@
  *
  * NOTE: The ghl-mql-webhook worker skips contacts tagged 'reach-higher-lp'
  * to avoid duplicate rows — this function writes the authoritative sheet row.
+ *
+ * Updated Sep 22 2026: Switched to MQL template format.
+ * Tabs now named "Month Year - MQL" with full template formatting.
  */
 
 const GHL_BASE  = 'https://services.leadconnectorhq.com';
@@ -41,6 +44,15 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
+// MQL Template headers (matches master template)
+const MQL_HEADERS = [
+  'Our Rating', 'Your Rating', 'DQ Reason', '1st Attempt Date/Time',
+  'Date Created', 'Name', 'Email', 'Phone',
+  'Call Summary', 'Call Transcript',
+  'Child Age', 'Insurance', 'Diagnosis', 'Waitlist',
+  'Traffic Source', 'Path / URL', 'Campaign', 'GCLID',
+];
+
 // ── OPTIONS preflight ────────────────────────────────────────────────────────
 export async function onRequestOptions() {
   return new Response(null, { status: 204, headers: CORS });
@@ -50,8 +62,9 @@ export async function onRequestOptions() {
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  const PIT        = env.GHL_PIT        || 'pit-cd550eee-19f8-4939-bcf4-e051feda6317';
-  const CLIENT_PIT = env.GHL_CLIENT_PIT || 'pit-0aa83ca4-fa83-496b-bbb0-480a2800b767';
+  const PIT           = env.GHL_PIT           || 'pit-cd550eee-19f8-4939-bcf4-e051feda6317';
+  const CLIENT_PIT    = env.GHL_CLIENT_PIT    || 'pit-a0747a2b-1ddd-46fe-8a71-3dd1012d0595';
+  const CLIENT_LOC_ID = env.GHL_CLIENT_LOC_ID || 'CV24QvQB6KnATRbdvBxm';
 
   let body;
   try {
@@ -91,7 +104,7 @@ export async function onRequestPost(context) {
   const ageLabel = childAge || quizAge || '';
   const tags = [
     'reach-higher-lp',
-    'colorado-co',
+    'utah-ut',
     pageVariant !== 'main' ? `lp-${pageVariant}` : null,
     partial ? 'partial-capture' : 'full-submit',
     insurance.toLowerCase().includes('medicaid') ? 'medicaid' : null,
@@ -209,6 +222,7 @@ export async function onRequestPost(context) {
       ].filter(Boolean).join('\n');
 
       const clientPayload = {
+        locationId:   CLIENT_LOC_ID,
         firstName:    firstName   || undefined,
         lastName:     lastName    || undefined,
         phone:        phone       || undefined,
@@ -255,18 +269,9 @@ function json(obj, status = 200) {
 }
 
 // ── Google Sheets helpers ────────────────────────────────────────────────────
-const SHEET_HEADERS = [
-  'Status', 'DQ Reason', 'Notes', '#', 'Date',
-  'First Name', 'Last Name', 'Email', 'Phone',
-  'Child Age', 'Insurance', 'Lead Type', 'Source / LP',
-  'UTM Source', 'UTM Campaign', 'GCLID',
-  'Quiz - Diagnosis', 'Quiz - Waitlist', 'Page Variant',
-  'MQL Status', 'ICP Score', 'ICP Reasoning', 'GHL Contact ID',
-];
-
-function currentMonthTab() {
+function currentMonthMqlTab() {
   const now = new Date();
-  return `${now.toLocaleString('en-US', { month: 'long' })} ${now.getFullYear()} - All Leads`;
+  return `${now.toLocaleString('en-US', { month: 'long' })} ${now.getFullYear()} - MQL`;
 }
 
 async function getGoogleToken(env) {
@@ -291,58 +296,169 @@ async function writeToSheet(env, data) {
 
   const base    = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}`;
   const auth    = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-  const tabName = currentMonthTab();
+  const tabName = currentMonthMqlTab();
 
-  // Ensure tab exists with full headers
+  // Ensure tab exists with MQL template formatting
   const sheetRes  = await fetch(`${base}?fields=sheets.properties`, { headers: auth });
   const sheetData = await sheetRes.json();
   const tabs      = (sheetData.sheets || []).map(s => s.properties.title);
 
   if (!tabs.includes(tabName)) {
-    await fetch(`${base}:batchUpdate`, {
+    // Create tab
+    const addRes = await fetch(`${base}:batchUpdate`, {
       method: 'POST', headers: auth,
-      body: JSON.stringify({ requests: [{ addSheet: { properties: { title: tabName } } }] }),
+      body: JSON.stringify({ requests: [{
+        addSheet: { properties: { title: tabName, gridProperties: { rowCount: 1000, columnCount: 18 } } }
+      }] }),
     });
-    const encHdr = encodeURIComponent(`'${tabName}'!A1`);
-    await fetch(`${base}/values/${encHdr}?valueInputOption=USER_ENTERED`, {
-      method: 'PUT', headers: auth,
-      body: JSON.stringify({ values: [SHEET_HEADERS] }),
-    });
+    const addData = await addRes.json();
+    const newId = addData.replies?.[0]?.addSheet?.properties?.sheetId;
+
+    if (newId || newId === 0) {
+      await applyMqlFormatting(base, auth, newId);
+    } else {
+      // Fallback: just write plain headers
+      const encHdr = encodeURIComponent(`'${tabName}'!A1`);
+      await fetch(`${base}/values/${encHdr}?valueInputOption=USER_ENTERED`, {
+        method: 'PUT', headers: auth,
+        body: JSON.stringify({ values: [MQL_HEADERS] }),
+      });
+    }
   }
 
-  // Lead number (count column D, subtract header)
-  const countRes  = await fetch(`${base}/values/${encodeURIComponent(`'${tabName}'!D:D`)}`, { headers: auth });
-  const countData = await countRes.json();
-  const leadNum   = Math.max(0, (countData.values || []).length - 1) + 1;
-
+  // Build MQL row
+  const fullName = [data.firstName, data.lastName].filter(Boolean).join(' ');
   const now  = new Date();
   const date = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()}`;
 
+  // Determine traffic source label
+  let trafficSource = '';
+  if (data.utmSource) {
+    const src = data.utmSource.toLowerCase();
+    if (src.includes('google')) trafficSource = 'Google Ads';
+    else if (src.includes('meta') || src.includes('facebook')) trafficSource = 'Meta Ads';
+    else trafficSource = data.utmSource;
+  }
+
   const row = [
-    'New', '', '',
-    String(leadNum),
-    `'${date}`,
-    data.firstName    || '',
-    data.lastName     || '',
-    data.email        || '',
-    data.phone        || '',
-    data.ageLabel     || '',
-    data.insurance    || '',
-    'Form Fill',
-    `LP - ${data.pageVariant || 'main'}`,
-    data.utmSource    || '',
-    data.utmCampaign  || '',
-    data.gclid        || '',
-    data.quizDiag     || '',
-    data.quizWaitlist || '',
-    data.pageVariant  || 'main',
-    'Pending Review', '', 'Auto-added via LP form submit',
-    data.contactId    || '',
+    'Needs Review',                          // A: Our Rating
+    '',                                      // B: Your Rating
+    '',                                      // C: DQ Reason
+    '',                                      // D: 1st Attempt Date/Time
+    `'${date}`,                              // E: Date Created
+    fullName,                                // F: Name
+    data.email        || '',                 // G: Email
+    data.phone        || '',                 // H: Phone
+    '',                                      // I: Call Summary
+    '',                                      // J: Call Transcript
+    data.ageLabel     || '',                 // K: Child Age
+    data.insurance    || '',                 // L: Insurance
+    data.quizDiag     || '',                 // M: Diagnosis
+    data.quizWaitlist || '',                 // N: Waitlist
+    trafficSource,                           // O: Traffic Source
+    `LP - ${data.pageVariant || 'main'}`,    // P: Path / URL
+    data.utmCampaign  || '',                 // Q: Campaign
+    data.gclid        || '',                 // R: GCLID
   ];
 
-  const encTab = encodeURIComponent(`'${tabName}'!A:W`);
+  const encTab = encodeURIComponent(`'${tabName}'!A:R`);
   await fetch(
     `${base}/values/${encTab}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
     { method: 'POST', headers: auth, body: JSON.stringify({ values: [row], majorDimension: 'ROWS' }) },
   );
+}
+
+// ── Apply full MQL template formatting to a new tab ──────────────────────────
+async function applyMqlFormatting(base, auth, sheetId) {
+  const BLUE  = { red: 0.2901961, green: 0.5254902, blue: 0.9098039 };
+  const RED   = { red: 0.9098039, green: 0.26666668, blue: 0.3764706 };
+  const WHITE = { red: 1, green: 1, blue: 1 };
+  const BLACK = { red: 0, green: 0, blue: 0 };
+  const GRAY  = { red: 0.9372549, green: 0.9372549, blue: 0.9372549 };
+
+  const headerCells = MQL_HEADERS.map((h, ci) => ({
+    userEnteredValue: { stringValue: h },
+    userEnteredFormat: {
+      textFormat: { bold: true, fontFamily: 'Arial', foregroundColor: ci <= 3 ? WHITE : BLACK },
+      horizontalAlignment: 'CENTER',
+      verticalAlignment: 'BOTTOM',
+      backgroundColor: ci === 0 ? BLUE : ci <= 3 ? RED : GRAY,
+      ...(ci === 5 ? { wrapStrategy: 'CLIP' } : {}),
+    },
+  }));
+
+  const COL_WIDTHS = [99, 107, 143, 165, 112, 147, 223, 68, 116, 120, 111, 111, 111, 111, 116, 94, 91, 77];
+
+  const requests = [
+    {
+      updateCells: {
+        rows: [{ values: headerCells }],
+        fields: 'userEnteredValue,userEnteredFormat',
+        start: { sheetId, rowIndex: 0, columnIndex: 0 },
+      },
+    },
+    {
+      updateSheetProperties: {
+        properties: { sheetId, gridProperties: { frozenRowCount: 1, frozenColumnCount: 3 } },
+        fields: 'gridProperties.frozenRowCount,gridProperties.frozenColumnCount',
+      },
+    },
+    ...COL_WIDTHS.map((w, ci) => ({
+      updateDimensionProperties: {
+        range: { sheetId, dimension: 'COLUMNS', startIndex: ci, endIndex: ci + 1 },
+        properties: { pixelSize: w },
+        fields: 'pixelSize',
+      },
+    })),
+    // Dropdowns
+    {
+      setDataValidation: {
+        range: { sheetId, startRowIndex: 1, endRowIndex: 500, startColumnIndex: 0, endColumnIndex: 1 },
+        rule: { condition: { type: 'ONE_OF_LIST', values: [
+          { userEnteredValue: 'Good Lead' }, { userEnteredValue: 'Needs Review' }, { userEnteredValue: 'Disqualified' },
+        ] }, strict: true, showCustomUi: true },
+      },
+    },
+    {
+      setDataValidation: {
+        range: { sheetId, startRowIndex: 1, endRowIndex: 500, startColumnIndex: 1, endColumnIndex: 2 },
+        rule: { condition: { type: 'ONE_OF_LIST', values: [
+          { userEnteredValue: 'Good Lead' }, { userEnteredValue: 'Contacted' },
+          { userEnteredValue: 'Needs Review' }, { userEnteredValue: 'DQd' },
+        ] }, strict: true, showCustomUi: true },
+      },
+    },
+    {
+      setDataValidation: {
+        range: { sheetId, startRowIndex: 1, endRowIndex: 500, startColumnIndex: 2, endColumnIndex: 3 },
+        rule: { condition: { type: 'ONE_OF_LIST', values: [
+          { userEnteredValue: 'Outside of Scope' }, { userEnteredValue: 'No Contact Info' },
+          { userEnteredValue: 'Test/Spam' }, { userEnteredValue: 'Duplicate' }, { userEnteredValue: 'Other' },
+        ] }, strict: true, showCustomUi: true },
+      },
+    },
+    // Conditional formatting on Traffic Source (col 14)
+    ...[
+      ['Google Ads',   { red: 0.7176471, green: 0.88235295, blue: 0.8039216 }],
+      ['Meta',         { red: 0.7882353, green: 0.85490197, blue: 0.972549 }],
+      ['Organic',      { red: 0.9882353, green: 0.8980392,  blue: 0.8039216 }],
+      ['Facebook Ads', { red: 0.7882353, green: 0.85490197, blue: 0.972549 }],
+    ].map(([text, color]) => ({
+      addConditionalFormatRule: {
+        rule: {
+          ranges: [{ sheetId, startRowIndex: 0, endRowIndex: 500, startColumnIndex: 14, endColumnIndex: 15 }],
+          booleanRule: {
+            condition: { type: 'TEXT_CONTAINS', values: [{ userEnteredValue: text }] },
+            format: { backgroundColor: color },
+          },
+        },
+        index: 0,
+      },
+    })),
+  ];
+
+  await fetch(`${base}:batchUpdate`, {
+    method: 'POST', headers: auth,
+    body: JSON.stringify({ requests }),
+  });
 }
