@@ -14,7 +14,7 @@
  *
  * CLIENT GHL (Reach Higher ABA's own account):
  *   Location: CV24QvQB6KnATRbdvBxm
- *   PIT: set in env as GHL_CLIENT_PIT (pit-a0747a2b-1ddd-46fe-8a71-3dd1012d0595)
+ *   PIT: set in env as GHL_CLIENT_PIT (a Cloudflare secret); the forward is skipped when unset
  *   Only full submits are forwarded (not partial/progressive captures).
  *
  * Environment variables (CF Pages → Settings → Environment Variables):
@@ -62,8 +62,13 @@ export async function onRequestOptions() {
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  const PIT           = env.GHL_PIT           || 'pit-cd550eee-19f8-4939-bcf4-e051feda6317';
-  const CLIENT_PIT    = env.GHL_CLIENT_PIT    || 'pit-a0747a2b-1ddd-46fe-8a71-3dd1012d0595';
+  // Tokens come from Cloudflare secrets only; nothing is hardcoded here.
+  const PIT           = env.GHL_PIT;
+  const CLIENT_PIT    = env.GHL_CLIENT_PIT || '';
+  if (!PIT) {
+    console.error('GHL_PIT secret is not set');
+    return json({ error: 'server_not_configured' }, 500);
+  }
   const CLIENT_LOC_ID = env.GHL_CLIENT_LOC_ID || 'CV24QvQB6KnATRbdvBxm';
 
   let body;
@@ -202,7 +207,7 @@ export async function onRequestPost(context) {
 
   // ── 4. Forward to CLIENT'S GHL — full submit only ────────────────────────
   let clientContactId;
-  if (!partial && (phone || email)) {
+  if (!partial && (phone || email) && CLIENT_PIT) {
     try {
       const clientH = {
         'Authorization': `Bearer ${CLIENT_PIT}`,
