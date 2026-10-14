@@ -24,6 +24,8 @@
  *   GOOGLE_CLIENT_SECRET Google OAuth client secret
  *   GOOGLE_REFRESH_TOKEN Google OAuth refresh token
  *   SHEET_ID             MQL sheet ID (optional override)
+ *   TURNSTILE_SECRET     Optional. When set, submissions must carry a valid Turnstile token
+ *                        (set TURNSTILE_SITE_KEY in index.html to render the widget).
  *
  * NOTE: The ghl-mql-webhook worker skips contacts tagged 'reach-higher-lp'
  * to avoid duplicate rows — this function writes the authoritative sheet row.
@@ -91,13 +93,31 @@ export async function onRequestPost(context) {
     partial      = false,
     source       = 'Landing Page',
     pageVariant  = 'main',
+    city         = '',
+    consent      = false,
+    consentText  = '',
+    website      = '',          // honeypot: humans never fill it
+    turnstileToken = '',
     gclid        = '',
+    gbraid       = '',
+    wbraid       = '',
     utmSource    = '',
+    utmMedium    = '',
     utmCampaign  = '',
+    utmTerm      = '',
+    utmContent   = '',
+    landingPath  = '',
+    referrer     = '',
   } = body;
 
-  if (!phone && !email) {
-    return json({ error: 'no_contact_info' }, 422);
+  // ── Spam gates ──────────────────────────────────────────────────────────
+  if (website) return json({ success: true, skipped: 'honeypot' });          // look like success to the bot
+  const digits = String(phone).replace(/\D/g, '');
+  if (!email && digits.length < 10) return json({ error: 'invalid_phone' }, 422);
+  if (!phone && !email) return json({ error: 'no_contact_info' }, 422);
+  if (env.TURNSTILE_SECRET) {
+    const ok = await verifyTurnstile(env.TURNSTILE_SECRET, turnstileToken, request.headers.get('CF-Connecting-IP'));
+    if (!ok) return json({ error: 'bot_check_failed' }, 403);
   }
 
   const H = {
@@ -124,9 +144,18 @@ export async function onRequestPost(context) {
     quizDiag     && `Diagnosis status: ${quizDiag}`,
     quizWaitlist && `Waitlist status: ${quizWaitlist}`,
     insurance    && `Insurance: ${insurance}`,
+    city         && `City: ${city}`,
+    consent      && `Consent: yes (${new Date().toISOString()}) "${consentText}"`,
     gclid        && `GCLID: ${gclid}`,
+    gbraid       && `GBRAID: ${gbraid}`,
+    wbraid       && `WBRAID: ${wbraid}`,
     utmSource    && `UTM source: ${utmSource}`,
+    utmMedium    && `UTM medium: ${utmMedium}`,
     utmCampaign  && `UTM campaign: ${utmCampaign}`,
+    utmTerm      && `UTM term: ${utmTerm}`,
+    utmContent   && `UTM content: ${utmContent}`,
+    landingPath  && `Landing: ${landingPath}`,
+    referrer     && `Referrer: ${referrer}`,
   ].filter(Boolean).join('\n');
 
   // ── 1. Create / update contact in OUR GHL ───────────────────────────────
@@ -136,6 +165,7 @@ export async function onRequestPost(context) {
     lastName:     lastName    || undefined,
     phone:        phone       || undefined,
     email:        email       || undefined,
+    city:         city        || undefined,
     source,
     tags,
     gclId:        gclid       || undefined,
@@ -204,7 +234,7 @@ export async function onRequestPost(context) {
       await writeToSheet(env, {
         firstName, lastName, email, phone,
         ageLabel, insurance,
-        utmSource, utmCampaign, gclid,
+        utmSource, utmCampaign, gclid: gclid || gbraid || wbraid,
         quizDiag, quizWaitlist, pageVariant,
         contactId,
       });
@@ -230,9 +260,12 @@ export async function onRequestPost(context) {
         quizDiag     && `Diagnosis status: ${quizDiag}`,
         quizWaitlist && `Waitlist status: ${quizWaitlist}`,
         insurance    && `Insurance: ${insurance}`,
+        city         && `City: ${city}`,
+        consent      && `Consent to call/text: yes (${new Date().toISOString()})`,
         gclid        && `GCLID: ${gclid}`,
         utmSource    && `UTM source: ${utmSource}`,
         utmCampaign  && `UTM campaign: ${utmCampaign}`,
+        utmTerm      && `Keyword: ${utmTerm}`,
       ].filter(Boolean).join('\n');
 
       const clientPayload = {
@@ -241,6 +274,7 @@ export async function onRequestPost(context) {
         lastName:     lastName    || undefined,
         phone:        phone       || undefined,
         email:        email       || undefined,
+        city:         city        || undefined,
         source:       'Lukrah LP',
         tags:         ['lukrah-lp', 'google-ads'],
         gclId:        gclid       || undefined,
@@ -273,6 +307,23 @@ export async function onRequestPost(context) {
     opportunityId:   opportunityId  || null,
     clientContactId: clientContactId || null,
   });
+}
+
+// ── Cloudflare Turnstile ─────────────────────────────────────────────────────
+async function verifyTurnstile(secret, token, ip) {
+  if (!token) return false;
+  try {
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret, response: token, remoteip: ip || undefined }),
+    });
+    const data = await res.json();
+    return !!data.success;
+  } catch (err) {
+    console.error('Turnstile verify error:', err);
+    return false;
+  }
 }
 
 // ── JSON helper ──────────────────────────────────────────────────────────────

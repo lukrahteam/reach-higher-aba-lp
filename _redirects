@@ -1,1 +1,8 @@
 # Reach Higher ABA LP
+# Retired variants (stale content, no call tracking) now point at the main page
+/quiz             /   301
+/quiz/*           /   301
+/direct-form      /   301
+/direct-form.html /   301
+# Privacy policy lives on the main site
+/privacy-policy   https://reachhigheraba.com/privacy-policy/  302
