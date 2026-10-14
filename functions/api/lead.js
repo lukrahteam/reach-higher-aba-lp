@@ -177,16 +177,24 @@ export async function onRequestPost(context) {
   // and the MQL sheet. Upsert matches on phone/email and returns the contact.
   let contactId;
   try {
-    const res  = await fetch(`${GHL_BASE}/contacts/upsert`, {
+    let res  = await fetch(`${GHL_BASE}/contacts/upsert`, {
       method:  'POST',
       headers: H,
       body:    JSON.stringify(contactPayload),
     });
-    const data = await res.json();
+    let data = await res.json().catch(() => ({}));
+    if (res.status === 400 || res.status === 422) {
+      // GHL rejected a field (validation). Retry with only core fields so the lead is never lost.
+      console.error('GHL upsert validation error, retrying minimal:', res.status, JSON.stringify(data));
+      res  = await fetch(`${GHL_BASE}/contacts/upsert`, {
+        method: 'POST', headers: H, body: JSON.stringify(minimalContact(contactPayload)),
+      });
+      data = await res.json().catch(() => ({}));
+    }
     contactId = data?.contact?.id;
     if (!res.ok || !contactId) {
       console.error('GHL contact upsert failed:', res.status, JSON.stringify(data));
-      if (!res.ok) return json({ error: 'ghl_contact_failed', status: res.status, detail: data }, 502);
+      // Keep going: the client forward below must still run even if our GHL is down.
     }
 
     if (contactId && noteLines) {
@@ -198,7 +206,6 @@ export async function onRequestPost(context) {
     }
   } catch (err) {
     console.error('GHL contact error:', err);
-    return json({ error: 'ghl_contact_failed', detail: String(err) }, 502);
   }
 
   // ── 2. Add to pipeline in OUR GHL — full submit only ────────────────────
@@ -280,12 +287,19 @@ export async function onRequestPost(context) {
         gclId:        gclid       || undefined,
       };
 
-      const clientRes = await fetch(`${GHL_BASE}/contacts/upsert`, {
+      let clientRes = await fetch(`${GHL_BASE}/contacts/upsert`, {
         method:  'POST',
         headers: clientH,
         body:    JSON.stringify(clientPayload),
       });
-      const clientData = await clientRes.json();
+      let clientData = await clientRes.json().catch(() => ({}));
+      if (clientRes.status === 400 || clientRes.status === 422) {
+        console.error('Client GHL upsert validation error, retrying minimal:', clientRes.status, JSON.stringify(clientData));
+        clientRes  = await fetch(`${GHL_BASE}/contacts/upsert`, {
+          method: 'POST', headers: clientH, body: JSON.stringify(minimalContact(clientPayload)),
+        });
+        clientData = await clientRes.json().catch(() => ({}));
+      }
       clientContactId = clientData?.contact?.id;
       if (!clientRes.ok) console.error('Client GHL upsert failed:', clientRes.status, JSON.stringify(clientData));
 
@@ -301,12 +315,27 @@ export async function onRequestPost(context) {
     }
   }
 
+  // Only report failure when the lead landed nowhere; the page then shows the call-us error.
+  const landedSomewhere = !!contactId || !!clientContactId;
+  if (!landedSomewhere) {
+    return json({ error: 'ghl_contact_failed' }, 502);
+  }
+
   return json({
     success:         true,
     contactId,
     opportunityId:   opportunityId  || null,
     clientContactId: clientContactId || null,
   });
+}
+
+// ── Minimal GHL contact (documented fields only) for validation-error retries ──
+function minimalContact(p) {
+  const out = {};
+  for (const k of ['locationId', 'firstName', 'lastName', 'phone', 'email', 'source', 'tags']) {
+    if (p[k] !== undefined) out[k] = p[k];
+  }
+  return out;
 }
 
 // ── Cloudflare Turnstile ─────────────────────────────────────────────────────
