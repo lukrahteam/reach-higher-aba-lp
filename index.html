@@ -773,12 +773,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="wrap">
     <div class="stats-row">
       <div class="stat-item">
-        <div class="stat-number">10+</div>
-        <div class="stat-label">Years Experience</div>
+        <div class="stat-number">PhD</div>
+        <div class="stat-label">BCBA Clinical Director</div>
       </div>
       <div class="stat-item">
-        <div class="stat-number">100+</div>
-        <div class="stat-label">Utah Families Served</div>
+        <div class="stat-number">2 wks</div>
+        <div class="stat-label">Typical Time to Start</div>
       </div>
       <div class="stat-item">
         <div class="stat-number">0</div>
@@ -1426,7 +1426,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 (function(){
   var AW = 'AW-17815365174';
   var CONV_FORM  = AW + '/r8BQCK2Jmc0cELbMg69C';
-  var CONV_PHONE = AW + '/HT07CLfO5-YbELbMg69C';
+  // Phone conversions come from the forwarding-number swap in <head> (real calls, with a minimum
+  // duration set in Google Ads). Taps on tel: links are tracked as a GA4 event only, never as an
+  // Ads conversion: a tap is not a call.
   var TURNSTILE_SITE_KEY = ''; // paste the Cloudflare Turnstile site key to enable bot protection (server needs TURNSTILE_SECRET)
 
   function $(id){ return document.getElementById(id); }
@@ -1578,7 +1580,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   // ── Phone clicks: Google Ads conversion + GA4 event ──
   document.querySelectorAll('a[href^="tel:"]').forEach(function(el){
     el.addEventListener('click', function(){
-      if (typeof gtag === 'function') gtag('event', 'conversion', { send_to: CONV_PHONE });
       dl('phone_click', { location: el.closest('section, footer, .sticky-bar') ? (el.closest('section, footer, .sticky-bar').className || 'page') : 'page' });
     });
   });
