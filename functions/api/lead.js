@@ -141,15 +141,23 @@ export async function onRequestPost(context) {
     gclId:        gclid       || undefined,
   };
 
+  // Upsert (not create): the page sends a partial capture on phone blur, then
+  // the full submit with the same phone. A plain create returns 400 "duplicate"
+  // on the second call, which left contactId empty and skipped the pipeline
+  // and the MQL sheet. Upsert matches on phone/email and returns the contact.
   let contactId;
   try {
-    const res = await fetch(`${GHL_BASE}/contacts/`, {
+    const res  = await fetch(`${GHL_BASE}/contacts/upsert`, {
       method:  'POST',
       headers: H,
       body:    JSON.stringify(contactPayload),
     });
     const data = await res.json();
     contactId = data?.contact?.id;
+    if (!res.ok || !contactId) {
+      console.error('GHL contact upsert failed:', res.status, JSON.stringify(data));
+      if (!res.ok) return json({ error: 'ghl_contact_failed', status: res.status, detail: data }, 502);
+    }
 
     if (contactId && noteLines) {
       await fetch(`${GHL_BASE}/contacts/${contactId}/notes`, {
@@ -184,6 +192,7 @@ export async function onRequestPost(context) {
       });
       const data = await res.json();
       opportunityId = data?.opportunity?.id;
+      if (!res.ok) console.error('GHL opportunity failed:', res.status, JSON.stringify(data));
     } catch (err) {
       console.error('GHL opportunity error:', err);
     }
@@ -237,13 +246,14 @@ export async function onRequestPost(context) {
         gclId:        gclid       || undefined,
       };
 
-      const clientRes = await fetch(`${GHL_BASE}/contacts/`, {
+      const clientRes = await fetch(`${GHL_BASE}/contacts/upsert`, {
         method:  'POST',
         headers: clientH,
         body:    JSON.stringify(clientPayload),
       });
       const clientData = await clientRes.json();
       clientContactId = clientData?.contact?.id;
+      if (!clientRes.ok) console.error('Client GHL upsert failed:', clientRes.status, JSON.stringify(clientData));
 
       if (clientContactId && clientNote) {
         await fetch(`${GHL_BASE}/contacts/${clientContactId}/notes`, {
