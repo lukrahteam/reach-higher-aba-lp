@@ -24,6 +24,8 @@
  *   GOOGLE_CLIENT_SECRET Google OAuth client secret
  *   GOOGLE_REFRESH_TOKEN Google OAuth refresh token
  *   SHEET_ID             MQL sheet ID (optional override)
+ *   TURNSTILE_SECRET     Optional. When set, submissions must carry a valid Turnstile token
+ *                        (set TURNSTILE_SITE_KEY in index.html to render the widget).
  *
  * NOTE: The ghl-mql-webhook worker skips contacts tagged 'reach-higher-lp'
  * to avoid duplicate rows — this function writes the authoritative sheet row.
@@ -91,13 +93,31 @@ export async function onRequestPost(context) {
     partial      = false,
     source       = 'Landing Page',
     pageVariant  = 'main',
+    city         = '',
+    consent      = false,
+    consentText  = '',
+    website      = '',          // honeypot: humans never fill it
+    turnstileToken = '',
     gclid        = '',
+    gbraid       = '',
+    wbraid       = '',
     utmSource    = '',
+    utmMedium    = '',
     utmCampaign  = '',
+    utmTerm      = '',
+    utmContent   = '',
+    landingPath  = '',
+    referrer     = '',
   } = body;
 
-  if (!phone && !email) {
-    return json({ error: 'no_contact_info' }, 422);
+  // ── Spam gates ──────────────────────────────────────────────────────────
+  if (website) return json({ success: true, skipped: 'honeypot' });          // look like success to the bot
+  const digits = String(phone).replace(/\D/g, '');
+  if (!email && digits.length < 10) return json({ error: 'invalid_phone' }, 422);
+  if (!phone && !email) return json({ error: 'no_contact_info' }, 422);
+  if (env.TURNSTILE_SECRET) {
+    const ok = await verifyTurnstile(env.TURNSTILE_SECRET, turnstileToken, request.headers.get('CF-Connecting-IP'));
+    if (!ok) return json({ error: 'bot_check_failed' }, 403);
   }
 
   const H = {
@@ -124,9 +144,18 @@ export async function onRequestPost(context) {
     quizDiag     && `Diagnosis status: ${quizDiag}`,
     quizWaitlist && `Waitlist status: ${quizWaitlist}`,
     insurance    && `Insurance: ${insurance}`,
+    city         && `City: ${city}`,
+    consent      && `Consent: yes (${new Date().toISOString()}) "${consentText}"`,
     gclid        && `GCLID: ${gclid}`,
+    gbraid       && `GBRAID: ${gbraid}`,
+    wbraid       && `WBRAID: ${wbraid}`,
     utmSource    && `UTM source: ${utmSource}`,
+    utmMedium    && `UTM medium: ${utmMedium}`,
     utmCampaign  && `UTM campaign: ${utmCampaign}`,
+    utmTerm      && `UTM term: ${utmTerm}`,
+    utmContent   && `UTM content: ${utmContent}`,
+    landingPath  && `Landing: ${landingPath}`,
+    referrer     && `Referrer: ${referrer}`,
   ].filter(Boolean).join('\n');
 
   // ── 1. Create / update contact in OUR GHL ───────────────────────────────
@@ -136,6 +165,7 @@ export async function onRequestPost(context) {
     lastName:     lastName    || undefined,
     phone:        phone       || undefined,
     email:        email       || undefined,
+    city:         city        || undefined,
     source,
     tags,
     gclId:        gclid       || undefined,
@@ -147,16 +177,24 @@ export async function onRequestPost(context) {
   // and the MQL sheet. Upsert matches on phone/email and returns the contact.
   let contactId;
   try {
-    const res  = await fetch(`${GHL_BASE}/contacts/upsert`, {
+    let res  = await fetch(`${GHL_BASE}/contacts/upsert`, {
       method:  'POST',
       headers: H,
       body:    JSON.stringify(contactPayload),
     });
-    const data = await res.json();
+    let data = await res.json().catch(() => ({}));
+    if (res.status === 400 || res.status === 422) {
+      // GHL rejected a field (validation). Retry with only core fields so the lead is never lost.
+      console.error('GHL upsert validation error, retrying minimal:', res.status, JSON.stringify(data));
+      res  = await fetch(`${GHL_BASE}/contacts/upsert`, {
+        method: 'POST', headers: H, body: JSON.stringify(minimalContact(contactPayload)),
+      });
+      data = await res.json().catch(() => ({}));
+    }
     contactId = data?.contact?.id;
     if (!res.ok || !contactId) {
       console.error('GHL contact upsert failed:', res.status, JSON.stringify(data));
-      if (!res.ok) return json({ error: 'ghl_contact_failed', status: res.status, detail: data }, 502);
+      // Keep going: the client forward below must still run even if our GHL is down.
     }
 
     if (contactId && noteLines) {
@@ -168,7 +206,6 @@ export async function onRequestPost(context) {
     }
   } catch (err) {
     console.error('GHL contact error:', err);
-    return json({ error: 'ghl_contact_failed', detail: String(err) }, 502);
   }
 
   // ── 2. Add to pipeline in OUR GHL — full submit only ────────────────────
@@ -204,7 +241,7 @@ export async function onRequestPost(context) {
       await writeToSheet(env, {
         firstName, lastName, email, phone,
         ageLabel, insurance,
-        utmSource, utmCampaign, gclid,
+        utmSource, utmCampaign, gclid: gclid || gbraid || wbraid,
         quizDiag, quizWaitlist, pageVariant,
         contactId,
       });
@@ -230,9 +267,12 @@ export async function onRequestPost(context) {
         quizDiag     && `Diagnosis status: ${quizDiag}`,
         quizWaitlist && `Waitlist status: ${quizWaitlist}`,
         insurance    && `Insurance: ${insurance}`,
+        city         && `City: ${city}`,
+        consent      && `Consent to call/text: yes (${new Date().toISOString()})`,
         gclid        && `GCLID: ${gclid}`,
         utmSource    && `UTM source: ${utmSource}`,
         utmCampaign  && `UTM campaign: ${utmCampaign}`,
+        utmTerm      && `Keyword: ${utmTerm}`,
       ].filter(Boolean).join('\n');
 
       const clientPayload = {
@@ -241,17 +281,25 @@ export async function onRequestPost(context) {
         lastName:     lastName    || undefined,
         phone:        phone       || undefined,
         email:        email       || undefined,
+        city:         city        || undefined,
         source:       'Lukrah LP',
         tags:         ['lukrah-lp', 'google-ads'],
         gclId:        gclid       || undefined,
       };
 
-      const clientRes = await fetch(`${GHL_BASE}/contacts/upsert`, {
+      let clientRes = await fetch(`${GHL_BASE}/contacts/upsert`, {
         method:  'POST',
         headers: clientH,
         body:    JSON.stringify(clientPayload),
       });
-      const clientData = await clientRes.json();
+      let clientData = await clientRes.json().catch(() => ({}));
+      if (clientRes.status === 400 || clientRes.status === 422) {
+        console.error('Client GHL upsert validation error, retrying minimal:', clientRes.status, JSON.stringify(clientData));
+        clientRes  = await fetch(`${GHL_BASE}/contacts/upsert`, {
+          method: 'POST', headers: clientH, body: JSON.stringify(minimalContact(clientPayload)),
+        });
+        clientData = await clientRes.json().catch(() => ({}));
+      }
       clientContactId = clientData?.contact?.id;
       if (!clientRes.ok) console.error('Client GHL upsert failed:', clientRes.status, JSON.stringify(clientData));
 
@@ -267,12 +315,44 @@ export async function onRequestPost(context) {
     }
   }
 
+  // Only report failure when the lead landed nowhere; the page then shows the call-us error.
+  const landedSomewhere = !!contactId || !!clientContactId;
+  if (!landedSomewhere) {
+    return json({ error: 'ghl_contact_failed' }, 502);
+  }
+
   return json({
     success:         true,
     contactId,
     opportunityId:   opportunityId  || null,
     clientContactId: clientContactId || null,
   });
+}
+
+// ── Minimal GHL contact (documented fields only) for validation-error retries ──
+function minimalContact(p) {
+  const out = {};
+  for (const k of ['locationId', 'firstName', 'lastName', 'phone', 'email', 'source', 'tags']) {
+    if (p[k] !== undefined) out[k] = p[k];
+  }
+  return out;
+}
+
+// ── Cloudflare Turnstile ─────────────────────────────────────────────────────
+async function verifyTurnstile(secret, token, ip) {
+  if (!token) return false;
+  try {
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret, response: token, remoteip: ip || undefined }),
+    });
+    const data = await res.json();
+    return !!data.success;
+  } catch (err) {
+    console.error('Turnstile verify error:', err);
+    return false;
+  }
 }
 
 // ── JSON helper ──────────────────────────────────────────────────────────────
